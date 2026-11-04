@@ -474,11 +474,15 @@ Built while the game PC was offline: everything compiles (`cargo check`), the pa
 - **Verify loop:** results may set `verify_ms` (doors 1800, engine 1500, parking brake 800). A verify that returns "pending" again is re-run every 1.5 s, up to 5 passes.
 - **Messages:** new `ttl_info` (default 15 s) for satnav, distances and autopilot replies.
 
-## 0.3.0 plan notes (not for the README)
+## Planned after stage C (not for the README)
 
 - **Unprompted reactions.** Deliberately not described in the README; the only mention there is the "never sends a message unprompted… probably" line in the Terms of cover.
   - **What:** an occasional one-line message reacting to what the player is doing, in the active personality's voice. Examples: "This game is more than crashes, you know." / "The D-Series wasn't designed for that." / "Would you like me to show you how to find the brake pedal?"
   - **Rate:** at most once every 2 hours, with no minimum. Hours with nothing worth saying are fine.
   - **Triggers:** only real in-game events that would be very unusual in the real world. Examples: a large jump in damage, extreme speed for the vehicle type, big airtime or altitude change, rolling over, driving into water, repeated respawns. Each event gets a significance score; only a high score, outside the cooldown, can fire.
-  - **How:** a low-rate telemetry sample (about every 2 s) of damage, speed, altitude and orientation. It runs only while a vehicle is loaded, and can later share the HTTP API's live-state reader. Lines come from per-event pools, optionally per vehicle type, and can name the model.
+  - **How:** a low-rate telemetry sample (about every 2 s) of damage, speed, altitude and orientation. It runs only while a vehicle is loaded, and can later share the HTTP API's live-state reader.
+  - **Wording, written by the stage C LLM:** the code detects the event; the LLM only writes the line. It gets a short fact sheet (event type, vehicle name and type, the numbers involved such as speed, height or damage, and the personality), plus a few example lines, and writes one sentence of at most ~15 words.
+    - It runs in the background with no time pressure, and only when something has already passed the significance and cooldown checks, so a slow CPU-only model is fine.
+    - The output is checked (length, one line, no instructions or offensive words). If it fails, or stage C is turned off, a line from a built-in pool per event type is used instead.
+    - This is the one place the LLM writes text. Command replies stay template-based.
   - **Config:** `[reactions] enabled = true`, `min_gap_minutes = 120`.
