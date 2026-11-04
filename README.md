@@ -103,14 +103,27 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
   - Air suspension: raise, lower or stop.
 - [ ] **Longer messages for answers.** A separate on-screen time for satnav information and replies to questions (`ttl_info`).
 
-**Later**
+**Then, in this order**
 - [ ] **Stage B: embedding router.** A small embedding model (bge-small, run with Candle) maps free phrasing onto the same commands, so wording doesn't have to match the built-in phrases.
 - [ ] **Stage C: tiny LLM tie-breaks.** Qwen3 0.6B (Candle) only picks between 2–3 candidate commands and fills in slots such as names and numbers. It never writes replies.
+- [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml`. With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
+- [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
+- [ ] **HTTP API and phone microphone page.** Lets other devices on the network control BeamAssist. Off by default; when on, it uses one port and needs a token.
+  - **Commands:** `POST /api/command` takes free text through the normal parser. `POST /api/intent` takes structured commands such as `{"action":"lights","state":"high"}`. Either way you get back `{intent, label, result, status}`, and the in-game message still appears.
+  - **Game state:** `GET /api/state` returns paused / in game / menu, the map and the vehicle. `GET /api/events` (SSE) pushes state changes and command results as they happen.
+  - **State is live but rate-limited.** A state query triggers a live read from the game, at most one every 500 ms. Between reads, BeamAssist answers straight away from its last read. Add `live=true` to wait for the next read instead (up to 500 ms), for when accuracy matters more than speed. Commands never use this: they always read the vehicle at the moment they run.
+  - **Phone microphone page:** served by the exe itself. It uses HTTPS with a self-signed certificate created on first run, because phone browsers only allow the microphone over HTTPS. The console shows a QR code to pair a phone.
+    - It offers hold-to-talk, plus an open-mic mode that uses the normal wake phrases.
+    - Phone audio goes through the same speech recognition as the PC microphone.
+    - Basic display only: whether the game is connected, the game state (paused, in game or menu) and the map, plus a running log of each command sent and the game's reply.
+
+**Later**
+- [ ] **Web UI.** A full control page served from the same API: vehicle controls, satnav, traffic and environment buttons, and live readouts.
+- [ ] **MQTT bridge.** Connects to your own broker: commands in on `beamassist/cmd` and `beamassist/intent/<action>`, results on `beamassist/result`, and retained state topics. For Home Assistant, Node-RED and ESP32/Arduino button boxes.
+- [ ] **Stream Deck plugin** with keys that light up from live state, and an example ESP32 button box.
 - [ ] **Facilities as destinations.** Garages, dealerships, and delivery points such as the hospital and police station.
 - [ ] **"Driver" and "passenger" doors** that follow left- or right-hand drive.
 - [ ] **More truck controls:** hydraulics idle raise, and air pressure readouts.
-- [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
-- [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml`. With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
 - [ ] **Windows UI and tray icon.** A small window for status, the last few commands and settings, with an option to sit in the system tray instead of a console. In the tray it waits for the game to start, then connects on its own.
 - [ ] **Linux version.** A native Linux build, for the game running under Proton or for a separate machine on the LAN: ALSA/PulseAudio/PipeWire microphone input through cpal, and Vulkan for speech recognition on the GPU. The Linux build won't check free GPU memory before loading a model; it uses the GPU if one is found, and you can force the CPU in `config.toml`.
 
