@@ -104,6 +104,8 @@ pub fn choose(mode: &str, gpu_device: i32, need_mb: u64, headroom_mb: u64, built
         return Device::Gpu(gpu_device, format!("{} (forced in config)", what));
     }
     match best {
+        // Linux: no DXGI, so VRAM isn't checked; try the GPU (loading falls back to CPU on failure).
+        None if !cfg!(windows) => Device::Gpu(gpu_device, "Vulkan GPU (free VRAM not checked on Linux)".into()),
         None => Device::Cpu("no GPU found".into()),
         Some(a) if a.budget_mb == 0 => Device::Gpu(gpu_device, format!("{} (VRAM unknown)", a.name)),
         Some(a) if a.free_mb() >= need_mb + headroom_mb => {
