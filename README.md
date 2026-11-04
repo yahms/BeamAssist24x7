@@ -110,6 +110,9 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
 - [ ] **"Driver" and "passenger" doors** that follow left- or right-hand drive.
 - [ ] **More truck controls:** hydraulics idle raise, and air pressure readouts.
 - [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
+- [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml`. With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
+- [ ] **Windows UI and tray icon.** A small window for status, the last few commands and settings, with an option to sit in the system tray instead of a console. In the tray it waits for the game to start, then connects on its own.
+- [ ] **Linux version.** A native Linux build, for the game running under Proton or for a separate machine on the LAN: ALSA/PulseAudio/PipeWire microphone input through cpal, and Vulkan for speech recognition on the GPU. GPU memory checks need a replacement for DXGI.
 
 ### Build (Windows)
 
