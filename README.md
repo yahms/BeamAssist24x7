@@ -108,6 +108,12 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
 - [ ] **Stage C: tiny LLM tie-breaks.** Qwen3 0.6B (Candle) only picks between 2–3 candidate commands and fills in slots such as names and numbers. It never writes replies.
 - [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml`. With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
 - [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
+- [ ] **Chained commands.** Several requests in one sentence, such as "load the west coast map and put me in a Bastion" or "spawn a Pigeon, then drive to the nearest gas station".
+  - **Splitting:** the request is split on words such as "then", "and then", "after that" and "once", and on "and" or commas when each side is a whole command. An "and" inside a single command stays put ("lock the front and rear diffs").
+  - **Order:** steps run in the order spoken, except where the game needs a different order. A map load always goes first, because it resets the vehicle, then spawning, then vehicle settings, then driving.
+  - **Waiting:** each step waits for the previous one to finish and be confirmed: the map loaded, the car spawned, the door shut. Spoken timing works too: "in 10 seconds", "after 30 seconds", "when I get there" (when the route ends).
+  - **References:** "it" or "the car" points to the vehicle from the step before ("spawn a Pigeon and paint it red").
+  - **Results:** a chain stops at the first step that fails, and one message lists every step with its result. "cancel" stops a chain that is still running.
 - [ ] **HTTP API and phone microphone page.** Lets other devices on the network control BeamAssist. Off by default; when on, it uses one port and needs a token.
   - **Commands:** `POST /api/command` takes free text through the normal parser. `POST /api/intent` takes structured commands such as `{"action":"lights","state":"high"}`. Either way you get back `{intent, label, result, status}`, and the in-game message still appears.
   - **Game state:** `GET /api/state` returns paused / in game / menu, the map and the vehicle. `GET /api/events` (SSE) pushes state changes and command results as they happen.
