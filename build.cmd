@@ -6,8 +6,9 @@ rem Full output is saved to build.log.
 setlocal
 cd /d "%~dp0"
 set RUSTFLAGS=-C target-feature=+crt-static
-rem Short build folder (whisper.cpp's Vulkan shader sub-build nests very deep).
-set CARGO_TARGET_DIR=C:\bns
+rem Build output goes to "target" beside this script. To build somewhere else (for example a
+rem short path if you hit path-length errors), set CARGO_TARGET_DIR before running this script.
+if not defined CARGO_TARGET_DIR set "CARGO_TARGET_DIR=%~dp0target"
 
 rem ---- Visual Studio compiler environment (cl.exe, INCLUDE, LIB) for CMake + Ninja
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
