@@ -80,7 +80,7 @@ Platinum costs exactly what you have, and, as it turns out, who you are. Payment
 
 ## The technical bit
 
-The voice assistant itself is called **BeamNG.Speak** (`beamng-speak.exe`). It talks to the game's built-in MCP server and runs every model locally.
+The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to the game's built-in MCP server and runs every model locally.
 
 **Status: milestone 2, stage A: voice input.**
 - You can speak or type commands, and the exe carries them out in the game.
@@ -148,15 +148,15 @@ cd <your clone folder>
 .\build.cmd
 ```
 
-`build.cmd` sets `RUSTFLAGS=-C target-feature=+crt-static`, so the C runtime is linked statically and the exe needs no VC++ redistributable. It then copies `beamng-speak.exe` beside the script. A plain `cargo build --release` also works, but links the C runtime dynamically.
+`build.cmd` sets `RUSTFLAGS=-C target-feature=+crt-static`, so the C runtime is linked statically and the exe needs no VC++ redistributable. It then copies `beam-assist.exe` beside the script. A plain `cargo build --release` also works, but links the C runtime dynamically.
 
 ### Run
 
 1. Start BeamNG.drive with its MCP server enabled (default `127.0.0.1:29292`).
-2. Run `beamng-speak.exe`. On first run it writes `config.toml` beside itself. Edit the `[mcp]` host/port there to reach the game over your LAN proxy.
+2. Run `beam-assist.exe`. On first run it writes `config.toml` beside itself. Edit the `[mcp]` host/port there to reach the game over your LAN proxy.
 3. On first start with voice enabled, it downloads the speech model (about 148 MB) and the VAD model (about 1 MB) into `models\`, and prints their full paths.
 4. Speak: **"hey beam, high beams"**, or say "hey beam", pause, then the command within 6 seconds.
-5. You can also type commands at the `>` prompt, or run a single command and exit: `beamng-speak.exe lock rear diff`.
+5. You can also type commands at the `>` prompt, or run a single command and exit: `beam-assist.exe lock rear diff`.
 
 #### Voice settings (`[voice]` in config.toml)
 
@@ -212,7 +212,7 @@ Models aren't used by text mode yet (voice arrives in milestone 2), but you can 
 
 - At startup the exe prints the models folder and the **full path of every model file**, marking any not downloaded yet.
 - Type `models` at the prompt to print that again.
-- `beamng-speak.exe --models` downloads anything missing, verifies checksums if set, and prints each full path and size. Downloads resume if interrupted.
+- `beam-assist.exe --models` downloads anything missing, verifies checksums if set, and prints each full path and size. Downloads resume if interrupted.
 - In `config.toml`:
   - `[models] dir = "models"` sets the folder. It is relative to the exe, or absolute (e.g. `"D:/AI/models"`).
   - Each `[models.<name>]` has `file` (the name inside `dir`), an optional `path` (the full path to a file stored anywhere; overrides dir + file), `url` (download source) and an optional `sha256`.
@@ -227,7 +227,7 @@ Models aren't used by text mode yet (voice arrives in milestone 2), but you can 
 ### Layout
 
 ```
-beamng-speak.exe
+beam-assist.exe
 config.toml          (generated)
 models/              (milestone 2: downloaded automatically)
 src/                 Rust source

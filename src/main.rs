@@ -1,7 +1,7 @@
-//! BeamNG.Speak — voice and text commands for BeamNG.drive.
-//! Usage:  beamng-speak.exe                 voice (if enabled) + typed commands
-//!         beamng-speak.exe lock rear diff  run one command and exit
-//!         beamng-speak.exe --models        download/verify all model files
+//! BeamAssist — voice and text commands for BeamNG.drive.
+//! Usage:  beam-assist.exe                 voice (if enabled) + typed commands
+//!         beam-assist.exe lock rear diff  run one command and exit
+//!         beam-assist.exe --models        download/verify all model files
 
 mod ai;
 mod app;
@@ -35,7 +35,7 @@ fn run() -> Result<()> {
     let dir = exe.parent().context("exe has no folder")?.to_path_buf();
     let cfg_path = dir.join("config.toml");
     let (cfg, created) = config::load_or_create(&cfg_path)?;
-    println!("BeamNG.Speak {}", env!("CARGO_PKG_VERSION"));
+    println!("BeamAssist {}", env!("CARGO_PKG_VERSION"));
     if created {
         println!("Created default config: {}", cfg_path.display());
     }
@@ -115,7 +115,7 @@ fn run() -> Result<()> {
     } else {
         "connected (text mode)".to_string()
     };
-    app.say("BeamNG.Speak", &how, "applied", Some(5.0));
+    app.say("BeamAssist", &how, "applied", Some(5.0));
 
     // ---- typed commands on their own thread
     {

@@ -1,4 +1,4 @@
--- BeamNG.Speak resolver library (vehicle Lua VM). Stateless.
+-- BeamAssist resolver library (vehicle Lua VM). Stateless.
 -- The exe prepends this file to every command and appends one line:
 --   return BNGS.call("<action>", {<args>}, {<rule overrides>}, "<tag>")
 -- The result is "<tag>" .. jsonEncode(result), where result is

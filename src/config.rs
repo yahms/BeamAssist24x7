@@ -6,7 +6,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::Path;
 
-pub const DEFAULT_CONFIG: &str = r#"# BeamNG.Speak configuration
+pub const DEFAULT_CONFIG: &str = r#"# BeamAssist configuration
 # Created automatically on first run. Delete this file to regenerate the defaults.
 # Any value left out falls back to its default.
 
@@ -80,7 +80,7 @@ vad_threshold = 0.5
 show_heard = true
 
 # Speech/router models. Missing files are downloaded from `url` on first use
-# (run `beamng-speak.exe --models` to download and check them now).
+# (run `beam-assist.exe --models` to download and check them now).
 [models]
 # Folder for model files: relative to the exe, or an absolute path such as "D:/AI/models"
 dir = "models"

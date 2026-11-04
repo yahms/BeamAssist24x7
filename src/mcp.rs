@@ -65,7 +65,7 @@ impl Mcp {
             json!({
                 "protocolVersion": "2025-06-18",
                 "capabilities": {},
-                "clientInfo": { "name": "BeamNG.Speak", "version": env!("CARGO_PKG_VERSION") }
+                "clientInfo": { "name": "BeamAssist", "version": env!("CARGO_PKG_VERSION") }
             }),
         )?;
         // Notification: no id, response body (if any) ignored.

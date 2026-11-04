@@ -1,4 +1,4 @@
-# BeamNG.Speak — progress notes
+# BeamAssist (formerly BeamNG.Speak) — progress notes
 
 Last updated: 2026-11-03
 

@@ -61,8 +61,8 @@ echo Building CPU-only speech recognition
 echo Building in %CARGO_TARGET_DIR% with Ninja ... full output goes to build.log
 cargo build --release --target x86_64-pc-windows-msvc %FEATURES% -vv > build.log 2>&1
 if errorlevel 1 goto failed
-copy /y "%CARGO_TARGET_DIR%\x86_64-pc-windows-msvc\release\beamng-speak.exe" . >nul
-echo Built %~dp0beamng-speak.exe
+copy /y "%CARGO_TARGET_DIR%\x86_64-pc-windows-msvc\release\beam-assist.exe" . >nul
+echo Built %~dp0beam-assist.exe
 exit /b 0
 :failed
 echo.

@@ -1,5 +1,5 @@
 [package]
-name = "beamng-speak"
+name = "beam-assist"
 version = "0.1.0"
 edition = "2021"
 description = "Voice control for BeamNG.drive via the game's MCP server"
