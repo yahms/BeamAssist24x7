@@ -22,26 +22,32 @@ Gold members are greeted by name: "hey beam" or "computer". Waiting times are me
 
 ### What our members say
 
+> "I crashed my LeGran and asked for a Percheron. I can't see my LeGran any more now that it's under the Percheron. Couldn't be happier."
+> — **Bruce, East Coast USA** ★★★★★
+
 > "I rolled my Ibishu Pigeon onto its roof near the top of Utah and called BeamAssist. They set the time to 6 pm. I'm still upside down, but honestly the sunset was gorgeous."
 > — **Darren, Utah** ★★★★★
+
+> "I asked them to make it rain. They didn't send money, they sent weather. I drive a convertible with the roof off. I have never felt so alive."
+> — **Priya, West Coast USA** ★★★★★
 
 > "I asked them to unlock my rear diff. They sent four police cars. The diff is still locked, but nobody is messing with me now."
 > — **Kaz, Gridmap** ★★★★★
 
-> "I ran out of fuel on the highway, so they painted my car black. Same breakdown, much more slimming."
-> — **Priya, West Coast USA** ★★★★☆
+> "I was being chased and asked them to make the police back off. They set every cruiser to 'flee'. Now I chase them. I've found my calling."
+> — **Rhys, Italy** ★★★★★
+
+> "I said 'take me home' and they respawned me. Home turns out to be 15 metres above the start line. I'd never seen my neighbourhood from up there. Lovely spot, briefly."
+> — **Moana, Jungle Rock Island** ★★★★☆
 
 > "My D-Series was stuck in a ditch. The technician set gravity to the Moon's. The truck is out of the ditch. It is also leaving the atmosphere."
 > — **Hank, Johnson Valley** ★★★★★
 
-> "They recovered me to a 'nearby road'. To be fair, it was nearby. It was 15 metres straight down."
-> — **Moana, Jungle Rock Island** ★★★★☆
+> "I asked them to make the traffic calm down. Every driver on the map is now set to 'calm'. My commute takes four hours and I've finished three audiobooks. Life-changing."
+> — **Sandra, Automation Test Track** ★★★★★
 
 > "I said 'computer' on a work call and my Sunburst went into low range. Fastest response I've ever had from anyone."
-> — **Glen, Italy** ★★★★★
-
-> "I needed help with a sticky door, and they replaced my LeGran with a Percheron. The LeGran is now under the Percheron. The door problem is solved, technically."
-> — **Bruce, East Coast USA** ★★★★★
+> — **Glen, Small Island** ★★★★★
 
 ### Terms of cover
 
@@ -51,7 +57,11 @@ By saying any wake phrase within range of a microphone, you agree to automatic r
 
 ### Platinum: by invitation only
 
-Platinum is not sold. It finds you. Members are reportedly notified by a single Gavril Grand Marshal idling outside their house with its hazard lights on, and no one inside.
+You don't buy Platinum. Platinum buys you.
+
+Joining takes one word. Members say it at the end of a long drive, as a pre-ticked box appears in the corner of the screen for exactly one frame: "yes". The full terms run to a single clause, written in the font size of a jbeam node. In exchange for Platinum cover, the member transfers to BeamAssist24x7 all title to themselves, their future vehicles, their weekends, and their voice. That voice is then added to our list of wake phrases.
+
+Most members only find out when a Gavril Grand Marshal pulls up outside their house, idles with its hazard lights on for three days, and has no one inside. By then their Platinum benefits are already active:
 
 - **Pre-emptive recovery.** Your car is repaired a few seconds *before* the crash. You will never know which crash. Neither will we.
 - **Rewind on demand.** Say "that didn't happen" and it didn't. This includes the crash, the speeding ticket and, on request, the 2010s.
@@ -62,7 +72,7 @@ Platinum is not sold. It finds you. Members are reportedly notified by a single 
 - **One-word navigation.** Say "home". We don't route you there. We move home to you.
 - **Guaranteed respawn.** Always on the ground, upright, facing the right way. Our engineers say this is the most impossible feature on the list.
 
-Platinum costs exactly what you have, payable in a currency that will be invented for the purpose. Membership can't be cancelled, only outlived, and so far nobody has managed that.
+Platinum costs exactly what you have, and, as it turns out, who you are. Payment is in a currency that will be invented for the purpose. Membership can't be cancelled, only outlived, and so far nobody has managed that. Members who try to leave are recovered to a nearby road.
 
 *BeamAssist24x7 is a fan project, not affiliated with BeamNG GmbH. No real cars, wallets or occupants were harmed.*
 
