@@ -59,20 +59,14 @@ By saying any wake phrase within range of a microphone, you agree to automatic r
 
 You don't buy Platinum. Platinum buys you.
 
-Joining takes one word. Members say it at the end of a long drive, as a pre-ticked box appears in the corner of the screen for exactly one frame: "yes". The full terms run to a single clause, written in the font size of a jbeam node. In exchange for Platinum cover, the member transfers to BeamAssist24x7 all title to themselves, their future vehicles, their weekends, and their voice. That voice is then added to our list of wake phrases.
+Joining takes one word: "yes", said at the end of a long drive while a pre-ticked box flashes on screen for one frame. The single clause of the terms transfers you, your future vehicles and your voice to BeamAssist24x7. Your voice becomes a wake phrase.
 
-Most members only find out when a Gavril Grand Marshal pulls up outside their house, idles with its hazard lights on for three days, and has no one inside. By then their Platinum benefits are already active:
+- **Pre-emptive recovery.** Your car is repaired a few seconds *before* the crash.
+- **Rewind on demand.** Say "that didn't happen" and it didn't.
+- **One-word navigation.** Say "home". We move home to you.
+- **Guaranteed respawn.** On the ground, upright, facing the right way. Our engineers call this the most impossible feature on the list.
 
-- **Pre-emptive recovery.** Your car is repaired a few seconds *before* the crash. You will never know which crash. Neither will we.
-- **Rewind on demand.** Say "that didn't happen" and it didn't. This includes the crash, the speeding ticket and, on request, the 2010s.
-- **Infinite fuel.** We don't refuel your tank. We move the petrol station to wherever you are, and the old one quietly stops existing.
-- **Bespoke physics.** Friction, gravity and the speed of light are set to taste for each journey, then reset before anyone notices.
-- **Traffic that loves you.** Every AI driver on the map yields, waves, and names its firstborn after you.
-- **Diff locks for the soul.** Lock your rear diff and your inner peace at the same time. Results not yet reproducible.
-- **One-word navigation.** Say "home". We don't route you there. We move home to you.
-- **Guaranteed respawn.** Always on the ground, upright, facing the right way. Our engineers say this is the most impossible feature on the list.
-
-Platinum costs exactly what you have, and, as it turns out, who you are. Payment is in a currency that will be invented for the purpose. Membership can't be cancelled, only outlived, and so far nobody has managed that. Members who try to leave are recovered to a nearby road.
+Platinum costs exactly what you have, and who you are. Membership can't be cancelled, only outlived. Members who try to leave are recovered to a nearby road.
 
 *BeamAssist24x7 is a fan project, not affiliated with BeamNG GmbH. No real cars, wallets or occupants were harmed.*
 
