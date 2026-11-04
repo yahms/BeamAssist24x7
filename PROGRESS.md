@@ -460,7 +460,7 @@ Dependencies: `anyhow`, `serde`, `serde_json`, `toml`, `ureq` (rustls), `strsim`
 
 ## 0.2.0 (dev branch, 2026-11-04)
 
-Built while the game PC was offline: everything compiles (`cargo check`), the parser and place-matching tests pass, and the new resolver actions were run in LuaJIT against a mock vehicle. **Not yet tested in the game.**
+Built while the game PC was offline: everything compiles (`cargo check`), the parser and place-matching tests pass, and the new resolver actions were run in LuaJIT against a mock vehicle. Then built and tested in the game on Windows, and released as v0.2.0.
 
 - **Map loading** now uses `freeroam_freeroam.startFreeroamByName(name)` instead of MCP `load_level`. It loads the full freeroam extension set (core_multiSpawn, gameplay_rawPois, core_quickAccess…) and ends on "play", unpaused. The exe polls `get_status` every 1.5 s, treats timeouts as "still loading" (the game stops answering for ~10–20 s on West Coast USA), and finishes after two answers in a row showing the new level and a vehicle.
 - **Missing extensions:** `places::ENSURE_EXT` loads core_quickAccess, core_multiSpawn, gameplay_traffic, gameplay_police, gameplay_rawPois and core_groundMarkers if absent. It runs in `ensure_play`, before traffic/police spawns, and before every place command. This fixes "attempt to index global 'core_multiSpawn' (a nil value)" when spawning police.

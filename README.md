@@ -83,7 +83,7 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
 
 ### Roadmap
 
-**0.2.0** (on the `dev` branch; not yet tested in the game)
+**0.2.0** (released)
 - [x] **Map loading that survives the freeze.** Load through the game's own freeroam start, so the full set of game extensions is loaded. Show "loading…", wait out the 15–20 s when the MCP stops answering, then close any menu.
 - [x] **Traffic and police fixes.** Load the missing spawn extension before spawning, and make "spawn ai" and "spawn ai cars" add traffic.
 - [x] **Pause.** "pause the game" and "unpause" (the in-game J key).
