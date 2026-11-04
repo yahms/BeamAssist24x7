@@ -6,9 +6,19 @@ rem Full output is saved to build.log.
 setlocal
 cd /d "%~dp0"
 set RUSTFLAGS=-C target-feature=+crt-static
-rem Build output goes to "target" beside this script. To build somewhere else (for example a
-rem short path if you hit path-length errors), set CARGO_TARGET_DIR before running this script.
-if not defined CARGO_TARGET_DIR set "CARGO_TARGET_DIR=%~dp0target"
+rem Build output goes to "target" beside this script. whisper.cpp's Vulkan sub-build nests about
+rem 210 characters deep and the MSVC compiler can't use paths over 260 characters, even with
+rem Windows long paths on. So if this folder's own path is long, build in a short folder instead.
+rem To choose the folder yourself, set CARGO_TARGET_DIR before running this script.
+set "HERE=%~dp0"
+if not defined CARGO_TARGET_DIR (
+  if "%HERE:~40%"=="" (
+    set "CARGO_TARGET_DIR=%~dp0target"
+  ) else (
+    set "CARGO_TARGET_DIR=%SystemDrive%\bns"
+    echo This folder's path is long, so building in %SystemDrive%\bns to stay under the 260-character limit.
+  )
+)
 
 rem ---- Visual Studio compiler environment (cl.exe, INCLUDE, LIB) for CMake + Ninja
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -41,7 +51,7 @@ set "TOOLCHAIN=%~dp0cmake\static-crt.cmake"
 set "CMAKE_TOOLCHAIN_FILE=%TOOLCHAIN:\=/%"
 rem CMake cannot switch generator in an existing build folder: clear whisper.cpp's old one once.
 if not exist "%CARGO_TARGET_DIR%\.ninja-mt2" (
-  for /d %%d in ("%CARGO_TARGET_DIR%\x86_64-pc-windows-msvc\release\build\whisper-rs-sys-*") do rmdir /s /q "%%d"
+  for /d %%d in ("%CARGO_TARGET_DIR%\release\build\whisper-rs-sys-*") do rmdir /s /q "%%d"
   if not exist "%CARGO_TARGET_DIR%" mkdir "%CARGO_TARGET_DIR%"
   echo.> "%CARGO_TARGET_DIR%\.ninja-mt2"
 )
@@ -60,9 +70,10 @@ if defined VULKAN_SDK (
 echo Building CPU-only speech recognition
 :build
 echo Building in %CARGO_TARGET_DIR% with Ninja ... full output goes to build.log
-cargo build --release --target x86_64-pc-windows-msvc %FEATURES% -vv > build.log 2>&1
+rem No --target: the host is x86_64-pc-windows-msvc anyway, and leaving it out keeps paths 23 characters shorter.
+cargo build --release %FEATURES% -vv > build.log 2>&1
 if errorlevel 1 goto failed
-copy /y "%CARGO_TARGET_DIR%\x86_64-pc-windows-msvc\release\beam-assist.exe" . >nul
+copy /y "%CARGO_TARGET_DIR%\release\beam-assist.exe" . >nul
 echo Built %~dp0beam-assist.exe
 exit /b 0
 :failed
