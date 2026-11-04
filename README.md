@@ -1,6 +1,6 @@
 # BeamAssist24x7
 
-*Voice control for BeamNG.Drive. Ask for anything you can think of. (results may vary)
+*Voice control for BeamNG.Drive. Ask for anything you can think of. (results may vary)*
 
 ## Roadside assistance, upgraded to Gold
 
