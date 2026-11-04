@@ -49,6 +49,21 @@ BeamAssist24x7 Gold accepts no liability for loss of your no-claims bonus, write
 
 By saying any wake phrase within range of a microphone, you agree to automatic renewal at 29.99 a month, billed in node-beams. You may cancel only in writing, by fax, to a dealership on a map you have not installed. Towing distance is unlimited; towing direction is "up". Seatbelts are decorative. The Platinum tier does exist, and you can't afford it.
 
+### Platinum: by invitation only
+
+Platinum is not sold. It finds you. Members are reportedly notified by a single Gavril Grand Marshal idling outside their house with its hazard lights on, and no one inside.
+
+- **Pre-emptive recovery.** Your car is repaired a few seconds *before* the crash. You will never know which crash. Neither will we.
+- **Rewind on demand.** Say "that didn't happen" and it didn't. This includes the crash, the speeding ticket and, on request, the 2010s.
+- **Infinite fuel.** We don't refuel your tank. We move the petrol station to wherever you are, and the old one quietly stops existing.
+- **Bespoke physics.** Friction, gravity and the speed of light are set to taste for each journey, then reset before anyone notices.
+- **Traffic that loves you.** Every AI driver on the map yields, waves, and names its firstborn after you.
+- **Diff locks for the soul.** Lock your rear diff and your inner peace at the same time. Results not yet reproducible.
+- **One-word navigation.** Say "home". We don't route you there. We move home to you.
+- **Guaranteed respawn.** Always on the ground, upright, facing the right way. Our engineers say this is the most impossible feature on the list.
+
+Platinum costs exactly what you have, payable in a currency that will be invented for the purpose. Membership can't be cancelled, only outlived, and so far nobody has managed that.
+
 *BeamAssist24x7 is a fan project, not affiliated with BeamNG GmbH. No real cars, wallets or occupants were harmed.*
 
 ---
@@ -61,6 +76,36 @@ The voice assistant itself is called **BeamNG.Speak** (`beamng-speak.exe`). It t
 - You can speak or type commands, and the exe carries them out in the game.
 - Speech is recognised locally with Whisper and goes through the same command parser as typed text.
 - Stage B adds the embedding router for free phrasing; stage C adds the small LLM for tie-breaks.
+
+### Roadmap
+
+**Next release (0.2.0)**
+- [ ] **Map loading that survives the freeze.** Load through the game's own freeroam start, so the full set of game extensions is loaded. Show "loading…", wait out the 15–20 s when the MCP stops answering, then close any menu.
+- [ ] **Traffic and police fixes.** Load the missing spawn extension before spawning, and make "spawn ai" and "spawn ai cars" add traffic.
+- [ ] **Pause.** "pause the game" and "unpause" (the in-game J key).
+- [ ] **Satnav.**
+  - "navigate to", "set satnav to", "show me how to get to" and "where is X" draw the route to a named place: spawn points, fuel and charging stations, drag strips.
+  - "clear" or "cancel satnav" removes it.
+- [ ] **Distances.** "How far is the nearest fuel station?" and "What's the distance to X?" answer in m or km, with a compass direction (N, NE, E…).
+- [ ] **Autopilot.** "autopilot on" drives the route currently in the satnav, and "autopilot off" hands back control. "drive me to" and "take me to" set the route and drive it.
+- [ ] **Instant moves.** "spawn at" and "teleport to" a named place.
+- [ ] **Body controls.** Open, close or toggle each door (front/rear, left/right, or all), the bonnet/hood and the boot/trunk/tailgate. *(in-game Lua written)*
+- [ ] **Engine start and stop** in one command. The starter is held until the engine catches. *(in-game Lua written)*
+- [ ] **Boost.** JATO on or off, and arm or disarm nitrous. *(in-game Lua written)*
+- [ ] **Truck controls.** *(in-game Lua written)*
+  - Engine (compression) brake: off or level 1–3.
+  - Retarder: auto, off, or 20–100%.
+  - Parking brake.
+  - Air suspension: raise, lower or stop.
+- [ ] **Longer messages for answers.** A separate on-screen time for satnav information and replies to questions (`ttl_info`).
+
+**Later**
+- [ ] **Stage B: embedding router.** A small embedding model (bge-small, run with Candle) maps free phrasing onto the same commands, so wording doesn't have to match the built-in phrases.
+- [ ] **Stage C: tiny LLM tie-breaks.** Qwen3 0.6B (Candle) only picks between 2–3 candidate commands and fills in slots such as names and numbers. It never writes replies.
+- [ ] **Facilities as destinations.** Garages, dealerships, and delivery points such as the hospital and police station.
+- [ ] **"Driver" and "passenger" doors** that follow left- or right-hand drive.
+- [ ] **More truck controls:** hydraulics idle raise, and air pressure readouts.
+- [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
 
 ### Build (Windows)
 
