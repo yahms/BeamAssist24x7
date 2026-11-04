@@ -1,0 +1,6 @@
+/target
+/models
+config.toml
+build.log
+*.exe
+*.part

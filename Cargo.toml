@@ -1,0 +1,32 @@
+[package]
+name = "beamng-speak"
+version = "0.1.0"
+edition = "2021"
+description = "Voice control for BeamNG.drive via the game's MCP server"
+
+[dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+ureq = "2.10"
+strsim = "0.11"
+sha2 = "0.10"
+# voice (stage A): microphone + whisper.cpp (builds C++ via CMake; needs LLVM/libclang for bindgen)
+cpal = "0.18"
+whisper-rs = "0.16"
+
+[target.'cfg(windows)'.dependencies]
+# GPU list + free VRAM (DXGI)
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Dxgi"] }
+
+[features]
+default = []
+# Speech recognition on GPU via Vulkan (NVIDIA, AMD, Intel). Needs the Vulkan SDK to build.
+gpu = ["whisper-rs/vulkan"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
