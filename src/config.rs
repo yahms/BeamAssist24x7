@@ -48,6 +48,18 @@ partial = "warning"
 unsupported = "block"
 failed = "error"
 
+[router]
+# Stage B: when a request isn't recognised word for word, compare it with example phrasings
+# (bge-small embedding model, CPU) and run the closest command. false = rule parser only,
+# which saves ~150 MB of RAM and skips downloading the embedding model.
+enabled = true
+# Minimum similarity (0-1) for a match. Higher = fewer wrong guesses, more "not understood".
+threshold = 0.80
+# Two different commands closer than this are treated as a tie: you're asked which you meant.
+margin = 0.02
+# Print the match and its score in the console
+show_match = true
+
 [voice]
 # Voice input from the default microphone. false = text commands only.
 enabled = true
@@ -141,6 +153,7 @@ sha256 = ""
 pub struct Config {
     pub mcp: McpCfg,
     pub messages: MsgCfg,
+    pub router: RouterCfg,
     pub voice: VoiceCfg,
     pub models: ModelsCfg,
 }
@@ -173,6 +186,14 @@ pub struct MsgCfg {
     pub show_not_understood: bool,
     pub result: HashMap<String, String>,
     pub icons: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct RouterCfg {
+    pub enabled: bool,
+    pub threshold: f32,
+    pub margin: f32,
+    pub show_match: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]

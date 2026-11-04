@@ -76,7 +76,7 @@ Platinum costs exactly what you have, and who you are. Membership can't be cance
 
 The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to the game's built-in MCP server and runs every model locally.
 
-**Status: 0.2.0. Milestone 2, stage A: voice input.**
+**Status: 0.3.0 in progress (`dev` branch). Stage B, the embedding router, is in.**
 - You can speak or type commands, and the exe carries them out in the game.
 - Speech is recognised locally with Whisper and goes through the same command parser as typed text.
 - Stage B adds the embedding router for free phrasing; stage C adds the small LLM for tie-breaks.
@@ -104,7 +104,7 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
 - [x] **Longer messages for answers.** A separate on-screen time for satnav information and replies to questions (`ttl_info`).
 
 **0.3.0 (next)**
-- [ ] **Stage B: embedding router.** A small embedding model (bge-small, run with Candle) maps free phrasing onto the same commands, so wording doesn't have to match the built-in phrases.
+- [x] **Stage B: embedding router.** A small embedding model (bge-small, run with Candle) maps free phrasing onto the same commands, so wording doesn't have to match the built-in phrases. See "Free phrasing" below.
 - [ ] **Spawn cars from a description.** "That 90s American car", "a cheap Japanese hatchback", "something with a V8 and rear-wheel drive", "a police wagon".
   - **The data:** at startup BeamAssist reads every model and config the game has installed, mods included: brand, country, years, body style, type, description, value, power, drivetrain, transmission, fuel, and police or race configs.
   - **Matching:** the request is split into the parts that can be checked exactly (a decade such as "90s", a country, body style, drivetrain, fuel, a power range) and the rest. The checkable parts filter the list. The rest is ranked with the stage B embedding model against a short text description of each config.
@@ -118,7 +118,7 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
 
 **Then, in this order**
 - [ ] **Stage C: tiny LLM tie-breaks.** Qwen3 0.6B (Candle) only picks between 2–3 candidate commands and fills in slots such as names and numbers. It never writes replies.
-- [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml`. With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
+- [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml` (the router switch, `[router] enabled`, is done). With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
 - [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
 - [ ] **Chained commands.** Several requests in one sentence, such as "load the west coast map and put me in a Bastion" or "spawn a Pigeon, then drive to the nearest gas station".
   - **Splitting:** the request is split on words such as "then", "and then", "after that" and "once", and on "and" or commas when each side is a whole command. An "and" inside a single command stays put ("lock the front and rear diffs").
@@ -188,6 +188,27 @@ cd <your clone folder>
 3. On first start with voice enabled, it downloads the speech model (about 148 MB) and the VAD model (about 1 MB) into `models\`, and prints their full paths.
 4. Speak: **"hey beam, high beams"**, or say "hey beam", pause, then the command within 6 seconds.
 5. You can also type commands at the `>` prompt, or run a single command and exit: `beam-assist.exe lock rear diff`.
+
+#### Free phrasing (`[router]` in config.toml)
+
+When a request isn't one of the built-in phrasings, the router compares it with about 400 example phrasings and runs the closest command:
+
+| You say | It runs |
+|---|---|
+| dip the headlights | low beams |
+| is the engine cooking | temperatures |
+| i'd like to drive a pigeon | spawn pigeon |
+| guide me to chinatown | navigate to chinatown |
+| i'm running out of fuel | navigate to the nearest gas station |
+| fire the rockets | jato on |
+| let me take over | autopilot off |
+
+- **Opposites:** on/off pairs (lights, JATO, autopilot, parking brake…) are settled by the words you actually used ("fire", "light", "on" versus "stop", "cut", "off"), since the model alone can't reliably tell them apart.
+- **Unsure matches:** if two different commands match about equally well, it asks: "did you mean 'headlights off' or 'fog lights off'?". If nothing matches closely, or the request shares no meaningful word with the command's examples, it says "not understood" rather than guessing.
+- **Accuracy:** on phrasings it wasn't tuned on, about 9 in 10 run the right command and most of the rest ask. Ordinary chatter ("what's for dinner", "call my mum") didn't trigger anything in testing.
+- **Cost:** it runs on the CPU and takes about 40 ms per request. It loads in the background for a few seconds at startup, and commands work in the meantime.
+- **Voice:** the router only runs on requests addressed to BeamAssist. In the `both` and `open` voice modes, speech without a wake phrase still needs a built-in phrasing, so conversation can't trigger a guessed command.
+- `enabled = false` turns it off: rule parser only, about 150 MB less RAM, and the embedding model isn't downloaded. `threshold` and `margin` adjust how bold it is, and `show_match` prints each match and its score in the console.
 
 #### Voice settings (`[voice]` in config.toml)
 

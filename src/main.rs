@@ -16,6 +16,7 @@ mod mcp;
 mod models;
 mod paint;
 mod places;
+mod router;
 mod voice;
 
 use anyhow::{Context, Result};
@@ -82,17 +83,36 @@ fn run() -> Result<()> {
 
     let models_cfg = cfg.models.clone();
     let voice_cfg = cfg.voice.clone();
+    let router_cfg = cfg.router.clone();
     let mut app = app::App::new(mcp, cfg, cat);
     // The game sometimes leaves the main menu over a loaded map.
     if let Ok(true) = app.ensure_play() {
         println!("Closed the game menu");
     }
     if !args.is_empty() {
-        app.handle(&args.join(" "));
+        let line = args.join(" ");
+        if router_cfg.enabled && intents::parse(&line) == intents::Intent::Unknown {
+            match load_router(&models_cfg, &dir, &router_cfg) {
+                Ok(r) => app.router = Some(r),
+                Err(e) => println!("Router not available: {:#}", e),
+            }
+        }
+        app.handle(&line);
         return Ok(());
     }
 
     let (tx, rx) = std::sync::mpsc::channel::<voice::Input>();
+
+    // ---- stage B router: loads in the background (a few seconds); commands work meanwhile
+    if router_cfg.enabled {
+        let (tx, models_cfg, dir, rc) = (tx.clone(), models_cfg.clone(), dir.clone(), router_cfg.clone());
+        std::thread::spawn(move || match load_router(&models_cfg, &dir, &rc) {
+            Ok(r) => {
+                let _ = tx.send(voice::Input::Router(Box::new(r)));
+            }
+            Err(e) => println!("\nRouter not available, using the rule parser only: {:#}", e),
+        });
+    }
 
     // ---- voice
     let mut voice_on = false;
@@ -147,6 +167,11 @@ fn run() -> Result<()> {
     while let Ok(input) = rx.recv() {
         match input {
             voice::Input::Quit => break,
+            voice::Input::Router(r) => {
+                println!("\nRouter ready ({} example phrasings)", r.len());
+                app.router = Some(*r);
+                prompt();
+            }
             voice::Input::Text(l) => {
                 if l.is_empty() {
                 } else if l.eq_ignore_ascii_case("quit") || l.eq_ignore_ascii_case("exit") {
@@ -185,6 +210,16 @@ fn run() -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn load_router(models: &config::ModelsCfg, dir: &std::path::Path, rc: &config::RouterCfg) -> Result<router::Router> {
+    let paths = models::ensure_some(models, dir, &["embed", "embed_config", "embed_tokenizer"])?;
+    let get = |n: &str| paths.iter().find(|(k, _)| k == n).map(|(_, p)| p.clone()).unwrap_or_default();
+    let t = Instant::now();
+    let emb = router::Embedder::load(&get("embed"), &get("embed_config"), &get("embed_tokenizer"))?;
+    let r = router::Router::new(emb, rc.threshold, rc.margin)?;
+    println!("Router model {} loaded in {:.1} s", models::display(&get("embed")), t.elapsed().as_secs_f64());
+    Ok(r)
 }
 
 fn prompt() {

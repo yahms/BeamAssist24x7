@@ -21,6 +21,8 @@ use crate::config::VoiceCfg;
 pub enum Input {
     Text(String),
     Voice(String),
+    /// the stage B router finished loading in the background
+    Router(Box<crate::router::Router>),
     Quit,
 }
 

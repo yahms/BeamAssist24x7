@@ -486,3 +486,16 @@ Built while the game PC was offline: everything compiles (`cargo check`), the pa
     - The output is checked (length, one line, no instructions or offensive words). If it fails, or stage C is turned off, a line from a built-in pool per event type is used instead.
     - This is the one place the LLM writes text. Command replies stay template-based.
   - **Config:** `[reactions] enabled = true`, `min_gap_minutes = 120`.
+
+## 0.3.0: stage B router (dev branch, 2026-11-04)
+
+- `src/router.rs`: bge-small-en-v1.5 via Candle 0.11 (`candle-transformers::models::bert`), CPU, f32 safetensors mmapped. CLS pooling + L2 normalisation, as bge recommends. Tokenizers 0.23 with `default-features = false, features = ["fancy-regex"]`, so no C/C++. Padding is batch-longest and truncation 64.
+- **Bank:** ~90 canonical commands, each a phrase the rule parser understands, with 2–7 example phrasings each (about 410 embedded phrases, ~4–5 s at startup on the CPU). Every canonical is checked to parse (harness).
+- **Routing,** used only when `intents::parse` returns Unknown:
+  1. **Literal slot phrases:** if a slot command's example appears word for word ("guide me to …", "i'd like to drive a …"), take it and carry the remaining content words over (place, model, colour, number), skipping filler words and words already in the example or canonical.
+  2. **Embedding:** best cosine per bank entry. It needs ≥ `threshold` (0.80), plus at least one shared content word with that entry's examples unless the score is ≥ 0.87.
+  3. **On/off twins** (`POLARITY` table): choose the side from cue words in the request. With no cue, if the matched example contains an off cue the request didn't say, take the on side.
+  4. Different commands within `margin` (0.02): ask "did you mean …?" (stage C will settle these).
+- **Calibration** with the real model (harness, 70 positives, 25 chatter negatives): 65 correct, 4 ask, 1 wrong ("make it rain heavily" → light rain), 0 false positives. On the 24 phrasings written fresh and not tuned on: 21 correct, 2 ask, 1 wrong. Unrelated chatter scores up to ~0.84 without the shared-word check, which is why that check exists.
+- **Latency** ~40 ms per request (opt-level 3, one thread).
+- **Loading:** in the background at startup (`voice::Input::Router`); single-command mode loads it synchronously only if the parser doesn't recognise the command. Config: `[router] enabled, threshold, margin, show_match`.

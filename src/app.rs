@@ -18,6 +18,8 @@ pub struct App {
     pub cat: Catalog,
     /// model key -> config key last used this session (in memory only)
     last_config: HashMap<String, String>,
+    /// stage B embedding router (None until loaded, or when turned off)
+    pub router: Option<crate::router::Router>,
 }
 
 fn s(v: &Value) -> String {
@@ -78,7 +80,7 @@ fn resolver_call(i: &Intent) -> Option<(&'static str, Value)> {
 
 impl App {
     pub fn new(mcp: Mcp, cfg: Config, cat: Catalog) -> Self {
-        App { mcp, cfg, cat, last_config: HashMap::new() }
+        App { mcp, cfg, cat, last_config: HashMap::new(), router: None }
     }
 
     fn tmpl(&self, key: &str, vars: &[(&str, String)]) -> String {
@@ -102,7 +104,44 @@ impl App {
     }
 
     pub fn handle(&mut self, line: &str) {
-        let intent = intents::parse(line);
+        let mut intent = intents::parse(line);
+        let mut line = line.to_string();
+        if intent == Intent::Unknown {
+            if let Some(r) = &self.router {
+                let show = self.cfg.router.show_match;
+                match r.route(&line) {
+                    Ok(crate::router::Route::Command(cmd, score, like)) => {
+                        let i2 = intents::parse(&cmd);
+                        if show {
+                            println!("  router: '{}' -> '{}' ({:.2}, like '{}')", line, cmd, score, like);
+                        }
+                        if i2 != Intent::Unknown {
+                            intent = i2;
+                            line = cmd;
+                        }
+                    }
+                    Ok(crate::router::Route::Ambiguous(opts)) => {
+                        if show {
+                            println!("  router: tie {:?}", opts);
+                        }
+                        let names: Vec<String> = opts.iter().take(3).map(|(c, _)| format!("'{}'", c)).collect();
+                        let ask = match names.len() {
+                            0 | 1 => format!("did you mean {}?", names.join("")),
+                            _ => format!("did you mean {} or {}?", names[..names.len() - 1].join(", "), names[names.len() - 1]),
+                        };
+                        self.say(&format!("Heard '{}'", line), &ask, "partial", None);
+                        return;
+                    }
+                    Ok(crate::router::Route::None(score)) => {
+                        if show {
+                            println!("  router: no close match ({:.2})", score);
+                        }
+                    }
+                    Err(e) => eprintln!("  router error: {:#}", e),
+                }
+            }
+        }
+        let line = line.as_str();
         println!("  intent: {:?}", intent);
         let label = intents::label(&intent);
         if let Err(e) = self.dispatch(line, &intent) {
