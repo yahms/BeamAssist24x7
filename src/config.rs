@@ -27,6 +27,8 @@ format = "{intent} — {result}"
 ttl = 5.0
 ttl_error = 10.0
 ttl_list = 15.0
+# Satnav, distances and other answers to questions
+ttl_info = 15.0
 # Show "Heard '...' — not understood" when a command isn't recognised
 show_not_understood = true
 
@@ -167,6 +169,7 @@ pub struct MsgCfg {
     pub ttl: f64,
     pub ttl_error: f64,
     pub ttl_list: f64,
+    pub ttl_info: f64,
     pub show_not_understood: bool,
     pub result: HashMap<String, String>,
     pub icons: HashMap<String, String>,

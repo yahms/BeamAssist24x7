@@ -76,32 +76,32 @@ Platinum costs exactly what you have, and who you are. Membership can't be cance
 
 The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to the game's built-in MCP server and runs every model locally.
 
-**Status: milestone 2, stage A: voice input.**
+**Status: 0.2.0. Milestone 2, stage A: voice input.**
 - You can speak or type commands, and the exe carries them out in the game.
 - Speech is recognised locally with Whisper and goes through the same command parser as typed text.
 - Stage B adds the embedding router for free phrasing; stage C adds the small LLM for tie-breaks.
 
 ### Roadmap
 
-**Next release (0.2.0)**
-- [ ] **Map loading that survives the freeze.** Load through the game's own freeroam start, so the full set of game extensions is loaded. Show "loading…", wait out the 15–20 s when the MCP stops answering, then close any menu.
-- [ ] **Traffic and police fixes.** Load the missing spawn extension before spawning, and make "spawn ai" and "spawn ai cars" add traffic.
-- [ ] **Pause.** "pause the game" and "unpause" (the in-game J key).
-- [ ] **Satnav.**
+**0.2.0** (on the `dev` branch; not yet tested in the game)
+- [x] **Map loading that survives the freeze.** Load through the game's own freeroam start, so the full set of game extensions is loaded. Show "loading…", wait out the 15–20 s when the MCP stops answering, then close any menu.
+- [x] **Traffic and police fixes.** Load the missing spawn extension before spawning, and make "spawn ai" and "spawn ai cars" add traffic.
+- [x] **Pause.** "pause the game" and "unpause" (the in-game J key).
+- [x] **Satnav.**
   - "navigate to", "set satnav to", "show me how to get to" and "where is X" draw the route to a named place: spawn points, fuel and charging stations, drag strips.
   - "clear" or "cancel satnav" removes it.
-- [ ] **Distances.** "How far is the nearest fuel station?" and "What's the distance to X?" answer in m or km, with a compass direction (N, NE, E…).
-- [ ] **Autopilot.** "autopilot on" drives the route currently in the satnav, and "autopilot off" hands back control. "drive me to" and "take me to" set the route and drive it.
-- [ ] **Instant moves.** "spawn at" and "teleport to" a named place.
-- [ ] **Body controls.** Open, close or toggle each door (front/rear, left/right, or all), the bonnet/hood and the boot/trunk/tailgate. *(in-game Lua written)*
-- [ ] **Engine start and stop** in one command. The starter is held until the engine catches. *(in-game Lua written)*
-- [ ] **Boost.** JATO on or off, and arm or disarm nitrous. *(in-game Lua written)*
-- [ ] **Truck controls.** *(in-game Lua written)*
+- [x] **Distances.** "How far is the nearest fuel station?" and "What's the distance to X?" answer in m or km, with a compass direction (N, NE, E…).
+- [x] **Autopilot.** "autopilot on" drives the route currently in the satnav, and "autopilot off" hands back control. "drive me to" and "take me to" set the route and drive it.
+- [x] **Instant moves.** "spawn at" and "teleport to" a named place.
+- [x] **Body controls.** Open, close or toggle each door (front/rear, left/right, or all), the bonnet/hood and the boot/trunk/tailgate.
+- [x] **Engine start and stop** in one command. The starter is held until the engine catches.
+- [x] **Boost.** JATO on or off, and arm or disarm nitrous.
+- [x] **Truck controls.**
   - Engine (compression) brake: off or level 1–3.
   - Retarder: auto, off, or 20–100%.
   - Parking brake.
   - Air suspension: raise, lower or stop.
-- [ ] **Longer messages for answers.** A separate on-screen time for satnav information and replies to questions (`ttl_info`).
+- [x] **Longer messages for answers.** A separate on-screen time for satnav information and replies to questions (`ttl_info`).
 
 **Then, in this order**
 - [ ] **Stage B: embedding router.** A small embedding model (bge-small, run with Candle) maps free phrasing onto the same commands, so wording doesn't have to match the built-in phrases.
@@ -199,7 +199,11 @@ Each command shows an in-game message, "intent — result", e.g. "High beams —
 | Drivetrain | low range · high range · four wheel drive · 2wd |
 | Assists | traction control off · tc on |
 | Gears | park · drive · reverse · neutral · third gear · gear 2 |
-| Readouts | temperatures · fuel · engine · speed · damage · what can I switch |
+| Readouts | temperatures · fuel · engine · speed · damage · what can I switch (also lists doors, bonnet, boot and extras such as JATO or an engine brake) |
+| Engine | start the engine · start the car · fire it up · stop the engine · kill the engine (the starter is held for you until the engine catches) |
+| Doors & panels | open the doors · open the driver door · close the rear left door · open the front doors · open the bonnet / hood · shut the boot / trunk / tailgate ("driver" = front left, "passenger" = front right) |
+| Boost | jato on · fire the rockets · jato off · arm the nitrous · disarm nos (armed nitrous fires at full throttle) |
+| Trucks | engine brake on · engine brake level 2 · jake brake off · retarder auto · retarder 60% · retarder off · parking brake on · release the handbrake · air brake on · raise / lower / stop the suspension |
 | Vehicle | repair / fix / restore (repair, back to the road) · respawn / reset (back to the spawn point) |
 | Spawn | spawn bruckell legran · spawn legran luxe v6 · replace car with a pigeon · add a percheron · list legran configs · list cars |
 | Maps | list maps · what map is this · change map to west coast |
@@ -207,12 +211,17 @@ Each command shows an in-game message, "intent — result", e.g. "High beams —
 | Time | set the time to 6 pm · half past 7 · make it sunset · noon · stop time · let time run · day length 10 minutes |
 | Weather | clear skies · make it cloudy · overcast · light fog · no fog · wind 20 km/h · calm · light rain · heavy rain · no rain (maps with rain: Small Island, Industrial, Italy, Jungle Rock Island, East/West Coast USA, Driver Training, BeamNG.Earth — not the gridmaps) · stormy |
 | Other environment | moon gravity · zero gravity · normal gravity · slow motion · half speed · real time |
-| Help | help · what can I ask · what can you do · what commands are there · what vehicle / map / level / game / weather / traffic commands are there · help with weather |
+| Help | help · what can I ask · what can you do · what commands are there · what vehicle / truck / satnav / map / level / game / weather / traffic commands are there · help with weather |
 | Ask | what weather settings can I change · what time is it (lists every variable with its current value) |
-| Traffic | spawn traffic · add 5 traffic cars · spawn 2 police cars · remove traffic |
-| AI behaviour | make the white van chase me · police chase me · tell the blue pickup to follow me · stop the red taxi · make the cops run away · make all traffic drive aggressively · limit the taxi to 50 km/h · autopilot on / off |
+| Traffic | spawn traffic · spawn ai · add 5 traffic cars · spawn 2 police cars · remove traffic |
+| AI behaviour | make the white van chase me · police chase me · tell the blue pickup to follow me · stop the red taxi · make the cops run away · make all traffic drive aggressively · limit the taxi to 50 km/h |
+| Places | list places · list gas stations · list charging stations · where can I go |
+| Satnav | navigate to chinatown · set satnav to the drag strip · show me how to get to the quarry · where is the nearest gas station · find the nearest charging station · cancel satnav · clear the route |
+| Distance | how far is the nearest service station · what's the distance to the dockyards · what direction is the race track (metres or km, plus N/NE/E…) |
+| Autopilot | autopilot on (drives the satnav route; with no route it drives as traffic) · autopilot off · take me to the dockyards · drive me to the nearest gas station |
+| Teleport | teleport to the highway · spawn at the race track (instant, and repairs the car) |
 | AI spawn | spawn an ai van · spawn an ai legran police (extra AI car; you stay in yours) |
-| Game UI | close menu · back to the game · unpause (also done automatically at startup and after loading a map) |
+| Game | pause the game · unpause · close menu · back to the game (unpausing and closing menus is also done automatically at startup and after loading a map) |
 
 "spawn <car>" with no config spawns the game's default config. If you drove that car earlier this session, the message names the config you last used. That memory lasts for the session only.
 

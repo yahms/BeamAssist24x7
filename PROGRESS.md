@@ -457,3 +457,19 @@ Dependencies: `anyhow`, `serde`, `serde_json`, `toml`, `ureq` (rustls), `strsim`
 - `lua/probe_powertrain.lua` — dumps devices, controllers and electrics (used for the findings above).
 - `lua/probe_drivemodes.lua` — dumps every `driveModes` controller and what each mode sets.
 - `lua/resolver.lua` — the resolver library (see above).
+
+## 0.2.0 (dev branch, 2026-11-04)
+
+Built while the game PC was offline: everything compiles (`cargo check`), the parser and place-matching tests pass, and the new resolver actions were run in LuaJIT against a mock vehicle. **Not yet tested in the game.**
+
+- **Map loading** now uses `freeroam_freeroam.startFreeroamByName(name)` instead of MCP `load_level`. It loads the full freeroam extension set (core_multiSpawn, gameplay_rawPois, core_quickAccess…) and ends on "play", unpaused. The exe polls `get_status` every 1.5 s, treats timeouts as "still loading" (the game stops answering for ~10–20 s on West Coast USA), and finishes after two answers in a row showing the new level and a vehicle.
+- **Missing extensions:** `places::ENSURE_EXT` loads core_quickAccess, core_multiSpawn, gameplay_traffic, gameplay_police, gameplay_rawPois and core_groundMarkers if absent. It runs in `ensure_play`, before traffic/police spawns, and before every place command. This fixes "attempt to index global 'core_multiSpawn' (a nil value)" when spawning police.
+- **"spawn ai" / "spawn 3 ai cars"** with no model now spawn traffic.
+- **Pause:** "pause the game" → `simTimeAuthority.pause(true)` (the J key). "unpause" still goes through `ensure_play`. A vehicle command that times out while the game is paused now says so.
+- **Places (`src/places.rs`):** `gameplay_rawPois.getRawPoiListByLevel(level)` minus missions: spawn points, gas/charging stations, drag strips. Names via `translateLanguage`, positions from `markerInfo.bigmapMarker.pos`. "(Rules & Setup)" duplicates are dropped. Matching: exact name, then category + nearest ("nearest gas station"), then fuzzy (token overlap + Levenshtein; space-less near-exact counts on its own, for "china town").
+- **Satnav:** `core_groundMarkers.setPath(vec3, {clearPathOnReachingTarget=true})`, road length from `getPathLength()` ~400 ms later, `setPath(nil)` to clear. Distance and compass are straight-line from the player (+x east, +y north).
+- **Autopilot:** "autopilot on" reads `core_groundMarkers.getTargetPos()` and calls MCP `drive_to {pos, driveInLane:"on"}`. With no route it falls back to `set_ai mode=traffic`. "autopilot off" → `set_ai mode=disabled`. "take me to X" sets the route, then drives it.
+- **Teleport:** MCP `set_position {pos}` (+0.5 m z; keeps heading, repairs).
+- **Resolver actions:** `body` (advancedCouplerControl `toggleGroup`/`getGroupState`; the hood latch + catch pair counts as one panel; default door is FL), `engine` (ignition 2 + `controller.mainController.setStarter(true)`; verify passes release the starter once the engine runs, or after ~6 s), `jato` (`electrics.values.jatoInput`), `nitrous` (`electrics.values.nitrousOxideArm`), `engine_brake` (compressionBrake level/coef 0.33/0.66/1), `retarder` (setting index 1 auto, 2 off, 3–7 = 20–100%), `parking_brake` (`input.event('parkingbrake', v, FILTER_DIRECT)`), `air_suspension` (setMomentaryIncrease/Decrease; **semantics unverified**).
+- **Verify loop:** results may set `verify_ms` (doors 1800, engine 1500, parking brake 800). A verify that returns "pending" again is re-run every 1.5 s, up to 5 passes.
+- **Messages:** new `ttl_info` (default 15 s) for satnav, distances and autopilot replies.

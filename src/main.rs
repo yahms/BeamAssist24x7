@@ -15,6 +15,7 @@ mod lua;
 mod mcp;
 mod models;
 mod paint;
+mod places;
 mod voice;
 
 use anyhow::{Context, Result};

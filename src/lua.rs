@@ -72,8 +72,17 @@ pub fn resolve(mcp: &Mcp, action: &str, args: &Value) -> Result<Value> {
     let mut r = call(mcp, action, args)?;
     if r["status"] == "pending" {
         if let Some(checks) = r.get("checks").cloned() {
-            std::thread::sleep(Duration::from_millis(400));
-            let v = call(mcp, "verify", &json!({ "checks": checks, "action": action }))?;
+            // Most changes show up within a frame or two; door latches and engine starts take longer.
+            let wait = r["verify_ms"].as_u64().unwrap_or(400);
+            std::thread::sleep(Duration::from_millis(wait));
+            let mut pass = 1;
+            let mut v = call(mcp, "verify", &json!({ "checks": checks, "action": action, "pass": pass }))?;
+            // "pending" again: still in progress (an engine still cranking). Check again a few times.
+            while v["status"] == "pending" && pass < 5 {
+                pass += 1;
+                std::thread::sleep(Duration::from_millis(1500));
+                v = call(mcp, "verify", &json!({ "checks": checks, "action": action, "pass": pass }))?;
+            }
             let from: Vec<Value> = arr(&r["targets"]).iter().map(|t| t["from"].clone()).collect();
             let mut targets: Vec<Value> = arr(&v["targets"]).into_iter().cloned().collect();
             for (i, t) in targets.iter_mut().enumerate() {

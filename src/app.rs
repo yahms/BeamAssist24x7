@@ -52,6 +52,26 @@ fn resolver_call(i: &Intent) -> Option<(&'static str, Value)> {
         Intent::Gear(g) => ("gear", json!({ "state": g })),
         Intent::Read(g) => ("read", json!({ "group": g })),
         Intent::ListSwitches => ("list", json!({})),
+        Intent::Body { part, which, state } => ("body", json!({ "part": part, "which": which, "state": state })),
+        Intent::Engine(b) => ("engine", json!({ "state": if *b { "start" } else { "stop" } })),
+        Intent::Jato(b) => ("jato", json!({ "state": onoff(b) })),
+        Intent::Nitrous(b) => ("nitrous", json!({ "state": onoff(b) })),
+        Intent::EngineBrake { on, level, percent } => {
+            let mut a = json!({ "state": onoff(on) });
+            if let Some(l) = level {
+                a["level"] = json!(l);
+            }
+            if let Some(p) = percent {
+                a["percent"] = json!(p);
+            }
+            ("engine_brake", a)
+        }
+        Intent::Retarder(st) => match st.parse::<u32>() {
+            Ok(p) => ("retarder", json!({ "percent": p })),
+            Err(_) => ("retarder", json!({ "state": st })),
+        },
+        Intent::ParkingBrake(b) => ("parking_brake", json!({ "state": onoff(b) })),
+        Intent::AirSuspension(st) => ("air_suspension", json!({ "state": st })),
         _ => return None,
     })
 }
@@ -87,7 +107,11 @@ impl App {
         let label = intents::label(&intent);
         if let Err(e) = self.dispatch(line, &intent) {
             let msg = format!("{:#}", e);
-            let txt = if msg.contains("no response from vehicle") {
+            let paused = msg.contains("no response from vehicle")
+                && self.mcp.run_lua("return tostring(simTimeAuthority.getPause())").map(|r| r.trim() == "true").unwrap_or(false);
+            let txt = if paused {
+                "the game is paused; say 'unpause' first".to_string()
+            } else if msg.contains("no response from vehicle") {
                 self.tmpl("no_response", &[])
             } else {
                 self.tmpl("failed", &[("detail", msg)])
@@ -183,6 +207,28 @@ impl App {
                 self.say(&label, &title, "applied", None);
             }
             Intent::LoadMap(words) => self.load_map(words)?,
+            Intent::Pause => {
+                let was = self.mcp.run_lua("return tostring(simTimeAuthority.getPause())")?.trim() == "true";
+                if was {
+                    self.say(&label, &self.tmpl("already", &[("state", "paused".into())]), "already", None);
+                } else {
+                    self.mcp.run_lua("simTimeAuthority.pause(true) return 'ok'")?;
+                    self.say(&label, "paused; say 'unpause' to carry on", "applied", None);
+                }
+            }
+            Intent::ListPlaces(w) => {
+                let o = crate::places::list(&self.mcp, w)?;
+                self.say(&o.label, &o.text, o.status, Some(self.cfg.messages.ttl_list));
+            }
+            Intent::Navigate(w) => self.info(crate::places::navigate(&self.mcp, w)?),
+            Intent::Distance(w) => self.info(crate::places::distance(&self.mcp, w)?),
+            Intent::ClearNav => self.info(crate::places::clear(&self.mcp)?),
+            Intent::Autopilot(on) => self.info(crate::places::autopilot(&self.mcp, *on)?),
+            Intent::DriveTo(w) => self.info(crate::places::drive_to(&self.mcp, w)?),
+            Intent::Teleport(w) => {
+                let o = crate::places::teleport(&self.mcp, w)?;
+                self.say(&o.label, &o.text, o.status, None);
+            }
             Intent::Paint(words) => {
                 let o = crate::paint::run(&self.mcp, &self.cat, words)?;
                 self.say(&o.label, &o.text, o.status, None);
@@ -204,6 +250,12 @@ impl App {
         Ok(())
     }
 
+    /// Answers and satnav info stay on screen longer (ttl_info).
+    fn info(&self, o: crate::paint::Outcome) {
+        let ttl = if o.status == "failed" { None } else { Some(self.cfg.messages.ttl_info) };
+        self.say(&o.label, &o.text, o.status, ttl);
+    }
+
     /// Turn a resolver result into the in-game message.
     fn report(&self, intent: &Intent, r: &Value) {
         let label = intents::label(intent);
@@ -222,7 +274,10 @@ impl App {
         let text = match status.as_str() {
             "applied" => {
                 let mut t = self.tmpl("applied", &[]);
-                if total > 1 {
+                let detail: Vec<String> = targets.iter().filter_map(|x| fmt_to(&s(&r["action"]), x)).collect();
+                if !detail.is_empty() {
+                    t = format!("{}: {}", t, detail.join(", "));
+                } else if total > 1 {
                     t = format!("{} ({})", t, total);
                 }
                 let side: Vec<String> = arr(&r["side"]).iter().map(|x| format!("{} {}", name_of(x), s(&x["to"]))).collect();
@@ -271,7 +326,8 @@ impl App {
         }
         // Maps loaded through MCP don't load the quick-access (radial menu) extension, so
         // the pause menu names vehicles "Vehicle <id>" instead of their model/config.
-        let _ = self.mcp.run_lua("if not core_quickAccess then extensions.load('core_quickAccess') end return 'ok'");
+        // Traffic and police also need core_multiSpawn, which MCP's load_level leaves out.
+        let _ = self.mcp.run_lua(&format!("{} return 'ok'", crate::places::ENSURE_EXT));
         let mut closed = false;
         // The pause screen also freezes simulation time (timeScale 0) while physicsRunning
         // stays true, so check the game's pause flag directly.
@@ -444,15 +500,37 @@ impl App {
             self.say(&label, &self.tmpl("already", &[("state", "loaded".into())]), "already", None);
             return Ok(());
         }
-        self.say(&label, "loading…", "already", Some(60.0));
-        self.mcp.call("load_level", json!({ "name": level.name }))?;
+        self.say(&label, "loading… (the game stops answering for a while)", "already", Some(60.0));
+        // The game's own freeroam start loads the full set of freeroam extensions (traffic, police,
+        // places, quick access), unlike MCP load_level. It returns at once; the game then stops
+        // answering for ~10-20 s while the map loads.
+        self.mcp.run_lua(&format!("freeroam_freeroam.startFreeroamByName({}) return 'started'", lua::lua_str(&level.name)))?;
         let t0 = Instant::now();
         let want = format!("/levels/{}/", level.name.to_lowercase());
+        let mut quiet = false; // has the game gone unresponsive yet?
+        let mut good = 0; // consecutive "loaded" answers
         loop {
-            std::thread::sleep(Duration::from_secs(1));
-            if let Ok(st) = self.status() {
-                if s(&st["level"]).to_lowercase().contains(&want) && st["vehicle"].is_object() {
-                    break;
+            std::thread::sleep(Duration::from_millis(1500));
+            match self.status() {
+                Ok(st) => {
+                    let loaded = s(&st["level"]).to_lowercase().contains(&want) && st["vehicle"].is_object();
+                    // The same map returns early above, so a match means the new map; two answers
+                    // in a row make sure it isn't a half-loaded state just before the freeze.
+                    if loaded && (quiet || t0.elapsed() > Duration::from_secs(3)) {
+                        good += 1;
+                        if good >= 2 {
+                            break;
+                        }
+                    } else {
+                        good = 0;
+                    }
+                }
+                Err(_) => {
+                    if !quiet {
+                        println!("  game busy loading the map…");
+                    }
+                    quiet = true;
+                    good = 0;
                 }
             }
             if t0.elapsed() > Duration::from_secs(180) {
@@ -568,5 +646,52 @@ fn fmt_switches(d: &Value) -> String {
     if let Some(g) = d["gearbox"].as_object() {
         parts.push(format!("gearbox {}", s(&g["type"]).replace("Gearbox", "")));
     }
+    // Openable panels: "doors FL/FR/RL/RR, bonnet, boot"
+    let mut doors: Vec<String> = vec![];
+    let mut panels: Vec<&str> = vec![];
+    for c in arr(&d["couplers"]) {
+        match s(&c["kind"]).as_str() {
+            "door" => {
+                let p = s(&c["pos"]);
+                if !p.is_empty() && !doors.contains(&p) {
+                    doors.push(p);
+                }
+            }
+            "hood" if !panels.contains(&"bonnet") => panels.push("bonnet"),
+            "trunk" if !panels.contains(&"boot") => panels.push("boot"),
+            _ => {}
+        }
+    }
+    let mut open: Vec<String> = vec![];
+    if !doors.is_empty() {
+        open.push(format!("doors {}", doors.join("/")));
+    }
+    open.extend(panels.iter().map(|p| p.to_string()));
+    if !open.is_empty() {
+        parts.push(format!("opens: {}", open.join(", ")));
+    }
+    let extras: Vec<String> = arr(&d["extras"]).iter().map(|x| s(x)).collect();
+    if !extras.is_empty() {
+        parts.push(extras.join(", "));
+    }
     parts.join("; ")
+}
+
+/// Per-target detail for the "done" message ("FL door open", "retarder 60%").
+fn fmt_to(action: &str, t: &Value) -> Option<String> {
+    let ui = s(&t["ui"]);
+    match action {
+        "body" | "retarder" => Some(format!("{} {}", if ui.is_empty() { name_of(t) } else { ui }, s(&t["to"]))),
+        "engine_brake" => {
+            let c = t["to"].as_f64()?;
+            Some(match c {
+                c if c < 0.01 => "off".to_string(),
+                c if c < 0.5 => "level 1".to_string(),
+                c if c < 0.8 => "level 2".to_string(),
+                _ => "level 3".to_string(),
+            })
+        }
+        "engine" => Some(s(&t["to"])),
+        _ => None,
+    }
 }

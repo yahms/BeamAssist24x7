@@ -132,6 +132,8 @@ pub fn traffic(mcp: &Mcp, words: &[String]) -> Result<Outcome> {
     let any = |ws: &[&str]| ws.iter().any(|w| has(*w));
     let police = any(&["police", "cop", "cops", "cruiser", "cruisers"]);
     let label = if police { "Police".to_string() } else { "Traffic".to_string() };
+    // Maps loaded through MCP's load_level miss core_multiSpawn, which traffic and police need.
+    mcp.run_lua(&format!("{} return 'ok'", crate::places::ENSURE_EXT))?;
     let before = traffic_count(mcp);
 
     if any(&["remove", "clear", "delete", "despawn", "stop", "no", "off", "kill", "disable"]) {
