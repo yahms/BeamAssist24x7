@@ -1,6 +1,6 @@
 # BeamAssist24x7
 
-*Here to serve. Ask about our platinum service. Fees may apply.*
+*Voice control for BeamNG.Drive. Ask for anything you can think of. (results may vary)
 
 ## Roadside assistance, upgraded to Gold
 
