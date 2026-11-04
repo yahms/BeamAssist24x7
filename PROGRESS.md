@@ -473,3 +473,12 @@ Built while the game PC was offline: everything compiles (`cargo check`), the pa
 - **Resolver actions:** `body` (advancedCouplerControl `toggleGroup`/`getGroupState`; the hood latch + catch pair counts as one panel; default door is FL), `engine` (ignition 2 + `controller.mainController.setStarter(true)`; verify passes release the starter once the engine runs, or after ~6 s), `jato` (`electrics.values.jatoInput`), `nitrous` (`electrics.values.nitrousOxideArm`), `engine_brake` (compressionBrake level/coef 0.33/0.66/1), `retarder` (setting index 1 auto, 2 off, 3–7 = 20–100%), `parking_brake` (`input.event('parkingbrake', v, FILTER_DIRECT)`), `air_suspension` (setMomentaryIncrease/Decrease; **semantics unverified**).
 - **Verify loop:** results may set `verify_ms` (doors 1800, engine 1500, parking brake 800). A verify that returns "pending" again is re-run every 1.5 s, up to 5 passes.
 - **Messages:** new `ttl_info` (default 15 s) for satnav, distances and autopilot replies.
+
+## 0.3.0 plan notes (not for the README)
+
+- **Unprompted reactions.** Deliberately not described in the README; the only mention there is the "never sends a message unprompted… probably" line in the Terms of cover.
+  - **What:** an occasional one-line message reacting to what the player is doing, in the active personality's voice. Examples: "This game is more than crashes, you know." / "The D-Series wasn't designed for that." / "Would you like me to show you how to find the brake pedal?"
+  - **Rate:** at most once every 2 hours, with no minimum. Hours with nothing worth saying are fine.
+  - **Triggers:** only real in-game events that would be very unusual in the real world. Examples: a large jump in damage, extreme speed for the vehicle type, big airtime or altitude change, rolling over, driving into water, repeated respawns. Each event gets a significance score; only a high score, outside the cooldown, can fire.
+  - **How:** a low-rate telemetry sample (about every 2 s) of damage, speed, altitude and orientation. It runs only while a vehicle is loaded, and can later share the HTTP API's live-state reader. Lines come from per-event pools, optionally per vehicle type, and can name the model.
+  - **Config:** `[reactions] enabled = true`, `min_gap_minutes = 120`.

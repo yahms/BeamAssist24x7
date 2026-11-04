@@ -53,7 +53,7 @@ Gold members are greeted by name: "hey beam" or "computer". Waiting times are me
 
 BeamAssist24x7 Gold accepts no liability for loss of your no-claims bonus, write-offs, depreciation, whiplash, deformed chassis rails, or any vehicle reduced to a single cubic metre of soft-body. **Occupants are not modelled, and so are not covered.** Next of kin will be told by in-game message, shown for 5 seconds. Your vehicle's resale value has always been zero.
 
-By saying any wake phrase within range of a microphone, you agree to automatic renewal at 29.99 a month, billed in node-beams. You may cancel only in writing, by fax, to a dealership on a map you have not installed. Towing distance is unlimited; towing direction is "up". Seatbelts are decorative. The Platinum tier does exist, and you can't afford it.
+By saying any wake phrase within range of a microphone, you agree to automatic renewal at 29.99 a month, billed in node-beams. You may cancel only in writing, by fax, to a dealership on a map you have not installed. Towing distance is unlimited; towing direction is "up". Seatbelts are decorative. BeamAssist never sends a message unprompted… probably… hopefully… look, we can't rule anything out, really. The Platinum tier does exist, and you can't afford it.
 
 ### Platinum: by invitation only
 
@@ -103,8 +103,20 @@ The voice assistant is `beam-assist.exe` (formerly BeamNG.Speak). It talks to th
   - Air suspension: raise, lower or stop.
 - [x] **Longer messages for answers.** A separate on-screen time for satnav information and replies to questions (`ttl_info`).
 
-**Then, in this order**
+**0.3.0 (next)**
 - [ ] **Stage B: embedding router.** A small embedding model (bge-small, run with Candle) maps free phrasing onto the same commands, so wording doesn't have to match the built-in phrases.
+- [ ] **Spawn cars from a description.** "That 90s American car", "a cheap Japanese hatchback", "something with a V8 and rear-wheel drive", "a police wagon".
+  - **The data:** at startup BeamAssist reads every model and config the game has installed, mods included: brand, country, years, body style, type, description, value, power, drivetrain, transmission, fuel, and police or race configs.
+  - **Matching:** the request is split into the parts that can be checked exactly (a decade such as "90s", a country, body style, drivetrain, fuel, a power range) and the rest. The checkable parts filter the list. The rest is ranked with the stage B embedding model against a short text description of each config.
+  - **No retraining:** the model's weights stay as they are. BeamAssist builds a searchable index from the game's own data each time it starts, so new mods are picked up without training anything.
+  - **Answers:** the best match is spawned, and the message names it plus one or two runners-up ("Bruckell Moonhawk 1970s V8; also: Gavril Grand Marshal, Bruckell LeGran").
+- [ ] **Personalities.** A `personality` setting for the in-game messages:
+  - `plain`: as today.
+  - `snark`: "High beams — done. Not that it'll help."
+  - `robot`: "High beams — BEEP. Done. MEEP MORP."
+  - A personality can be tied to a vehicle, so a model can have its own voice (`[personality.cars]`, for example `pigeon = "robot"`). Results and numbers are never changed; only the wording around them.
+
+**Then, in this order**
 - [ ] **Stage C: tiny LLM tie-breaks.** Qwen3 0.6B (Candle) only picks between 2–3 candidate commands and fills in slots such as names and numbers. It never writes replies.
 - [ ] **Optional stages B and C.** Switch the router and the LLM on or off separately in `config.toml`. With both off, only the rule-based parser runs, which saves roughly 0.6 GB of RAM or VRAM and skips downloading those models.
 - [ ] **GPU for the router and LLM,** matching the speech recognition's GPU-or-CPU choice.
